@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "24560778616",
+    "project_id": "proyectoreact-5c75d",
+    "storage_bucket": "proyectoreact-5c75d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:24560778616:android:59cbdbf6eb655fd9259c8d",
+        "android_client_info": {
+          "package_name": "com.segundoproyectoreactnative"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "24560778616-li5giajdjdpll3gvuqd1kkom5mkaddaa.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBz4TOnF84q5eSP6JLCqBqnHMIWRJAY6Ws"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "24560778616-li5giajdjdpll3gvuqd1kkom5mkaddaa.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
