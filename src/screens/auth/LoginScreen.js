@@ -40,7 +40,7 @@ export default function LoginScreen({ navigation }) {
       // Si el login es correcto, navegamos a Home
       navigation.reset({
         index: 0,
-        routes: [{ name: 'Home' }],
+        routes: [{ name: 'EventsList' }],
       });
     } catch (error) {
       console.log('Error en login email:', error);
@@ -79,7 +79,7 @@ export default function LoginScreen({ navigation }) {
       // Inicia sesión en Firebase con esa credencial
       await signInWithCredential(auth, googleCredential);
 
-      // Navegamos a Home
+      // Navegamos a Lista de eventos
       navigation.reset({
         index: 0,
         routes: [{ name: 'Home' }],
