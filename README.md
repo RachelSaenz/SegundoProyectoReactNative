@@ -1,6 +1,13 @@
 This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
 
 # Getting Started
+## Módulo de Participación (RSVP) y Notificaciones
+
+El módulo de Participación (RSVP) y Notificaciones se encarga de gestionar la asistencia de los usuarios a los eventos y de enviar recordatorios previos a la fecha programada. Para ello se implementó un contexto global de eventos ("EventsContext") que centraliza la información de cada evento (título, fecha, lugar, descripción, estado de asistencia y id de recordatorio) y expone funciones para confirmar o cancelar la asistencia ("toggleRSVP") y para registrar el identificador de la notificación asociada ("updateEventReminderId"). Este contexto envuelve toda la aplicación desde "App.tsx" mediante el componente "EventsProvider", lo que permite acceder al estado de los eventos desde cualquier pantalla del flujo.
+
+Sobre esta base se desarrolló un servicio de notificaciones locales ("NotificacionService") utilizando la librería "react-native-push-notification". Este servicio ofrece dos operaciones principales: "scheduleReminderForEvent", que programa una notificación local una hora antes del evento seleccionado, y "cancelReminder", que cancela el recordatorio previamente configurado. De esta forma, cuando el usuario confirma su asistencia a un evento, se agenda automáticamente una notificación con el título y la información del evento; si el usuario decide dejar de asistir, la notificación se elimina para evitar recordatorios innecesarios.
+
+La interacción con el usuario se realiza a través de dos pantallas principales: "EventListScreen" y "EventDetailScreen". En "EventListScreen" se muestra una lista de eventos obtenidos desde el contexto y se permite navegar al detalle de cada uno. En "EventDetailScreen" se visualiza la información completa del evento y se incluye un botón que permite confirmar o cancelar la asistencia; esta acción actualiza el estado global en "EventsContext" y dispara las funciones del servicio de notificaciones según corresponda (programar o cancelar el recordatorio). Finalmente, se realizaron ajustes en la configuración de TypeScript ("tsconfig.json" y archivos de declaración ".d.ts") para habilitar JSX y reconocer correctamente la librería de notificaciones, asegurando que el módulo se integre de forma consistente con el resto de la aplicación.
 
 > **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
 
