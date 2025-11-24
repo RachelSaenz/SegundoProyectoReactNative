@@ -6,16 +6,20 @@ import {
   ActivityIndicator,
   Share,
   ScrollView,
-  Alert
+  Alert,
+  TextInput
 } from 'react-native';
 
-import { doc, getDoc, updateDoc, arrayUnion, deleteDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, arrayUnion, deleteDoc, collection, query, where, getDocs, addDoc } from 'firebase/firestore';
 import { db, auth } from '../../config/firebaseConfig';
 
 export default function DetalleEventosScreen({ route, navigation }) {
   const { eventId } = route.params;
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [commentText, setCommentText] = useState("");
+  const [rating, setRating] = useState(0);
+  const [comments, setComments] = useState([]);
 
   const user = auth.currentUser;
 
@@ -31,7 +35,50 @@ export default function DetalleEventosScreen({ route, navigation }) {
     };
 
     fetchEvent();
+    loadComments();
   }, []);
+
+  const loadComments = async () => {
+    const ref = collection(db, "comments");
+    const q = query(ref, where("eventId", "==", eventId));
+    const snap = await getDocs(q);
+
+    const list = [];
+    snap.forEach(doc => list.push({ id: doc.id, ...doc.data() }));
+    setComments(list);
+  };
+
+  const handleComment = async () => {
+    if (!commentText || rating === 0) {
+      alert("Completa comentario y calificación.");
+      return;
+    }
+
+    const ref = collection(db, "comments");
+    const q = query(ref, 
+      where("eventId", "==", eventId),
+      where("userId", "==", user.uid)
+    );
+    const snap = await getDocs(q);
+
+    if (!snap.empty) {
+      alert("Ya comentaste este evento.");
+      return;
+    }
+
+    await addDoc(collection(db, "comments"), {
+      eventId,
+      userId: user.uid,
+      userEmail: user.email,
+      text: commentText,
+      rating,
+      date: new Date().toISOString()
+    });
+
+    setCommentText("");
+    setRating(0);
+    loadComments();
+  };
 
   const confirmarAsistencia = async () => {
     try {
@@ -98,6 +145,7 @@ export default function DetalleEventosScreen({ route, navigation }) {
       <Text style={styles.subtitle}>Descripción:</Text>
       <Text style={styles.descripcion}>{event.descripcion}</Text>
 
+      {/* NUEVO: Compartir y confirmar asistencia */}
       <TouchableOpacity
         style={styles.confirmButton}
         onPress={confirmarAsistencia}
@@ -124,6 +172,56 @@ export default function DetalleEventosScreen({ route, navigation }) {
           {event.participantes?.length || 0}
         </Text>
       </View>
+
+
+      {/* NUEVA SECCIÓN: Comentarios y Rating */}
+
+      <Text style={styles.subtitle}>Tu calificación:</Text>
+
+      {/* Estrellas */}
+      <View style={{ flexDirection: "row", marginBottom: 10 }}>
+        {[1,2,3,4,5].map(n => (
+          <TouchableOpacity key={n} onPress={() => setRating(n)}>
+            <Text style={{
+              fontSize: 32,
+              marginRight: 8,
+              color: n <= rating ? "#FFD700" : "#aaa"
+            }}>
+              ★
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+
+      {/* Campo comentario */}
+      <TextInput
+        value={commentText}
+        onChangeText={setCommentText}
+        placeholder="Escribe un comentario..."
+        style={styles.commentInput}
+        multiline
+      />
+
+      {/* Botón publicar */}
+      <TouchableOpacity style={styles.publishButton} onPress={handleComment}>
+        <Text style={{ color: "#fff", textAlign: "center", fontWeight: "bold" }}>
+          Publicar comentario
+        </Text>
+      </TouchableOpacity>
+
+      {/* Lista de comentarios (NO FlatList = evita error) */}
+      <Text style={styles.subtitle}>Comentarios:</Text>
+
+      {comments.map(item => (
+        <View key={item.id} style={styles.commentCard}>
+          <Text style={{ fontWeight: "bold" }}>{item.rating} ★</Text>
+          <Text>{item.text}</Text>
+          <Text style={{ fontSize: 11, color: "gray" }}>
+            {new Date(item.date).toLocaleDateString()}
+          </Text>
+        </View>
+      ))}
+
     </ScrollView>
   );
 }
@@ -190,5 +288,25 @@ const styles = {
   },
   participantesCount: {
     fontSize: 16,
+  },
+  commentInput: {
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    padding: 10,
+    minHeight: 70,
+    marginTop: 5
+  },
+  publishButton: {
+    backgroundColor: "#2196F3",
+    padding: 12,
+    borderRadius: 10,
+    marginTop: 10,
+  },
+  commentCard: {
+    backgroundColor: "#fff",
+    padding: 12,
+    borderRadius: 10,
+    marginTop: 10,
+    marginBottom: 5,
   },
 };
